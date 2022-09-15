@@ -1,0 +1,87 @@
+version: "2"
+x-redash-service: &redash-service
+  image: redash/redash:8.0.0.b32245
+  depends_on:
+    - postgres
+    - redis
+  env_file: ./opt/redash/env
+  restart: always
+  networks:
+    - redash
+    - mobi1
+
+services:
+  server:
+    <<: *redash-service
+    command: server
+    ports:
+      - "5000:5000"
+    environment:
+      REDASH_WEB_WORKERS: 4
+  scheduler:
+    <<: *redash-service
+    command: scheduler
+    environment:
+      QUEUES: "celery"
+      WORKERS_COUNT: 1
+  scheduled_worker:
+    <<: *redash-service
+    command: worker
+    environment:
+      QUEUES: "scheduled_queries,schemas"
+      WORKERS_COUNT: 1
+  adhoc_worker:
+    <<: *redash-service
+    command: worker
+    environment:
+      QUEUES: "queries"
+      WORKERS_COUNT: 2
+
+  redis:
+    image: redis:5.0-alpine
+    restart: always
+    networks:
+      - redash
+
+  # mssql:
+  #   image: mcr.microsoft.com/mssql/server:2017-latest
+  #   ports:
+  #     - 1433:1433
+  #   environment:
+  #     - ACCEPT_EULA=Y
+  #     - SA_PASSWORD={任意のパスワード※}
+  #     - MSSQL_LCID=1041
+  #     - MSSQL_COLLATION=Japanese_CI_AS
+  #   networks:
+  #     - redash
+
+  postgres:
+    image: postgres:13-alpine
+    env_file: ./opt/redash/env
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - redash
+
+  # nginx:
+  #   image: redash/nginx:latest
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - server
+  #   links:
+  #     - server:redash
+  #   restart: always
+  #   networks:
+  #     - redash
+
+volumes:
+  postgres-db:
+
+networks:
+  redash:
+    driver: bridge
+  mobi1:
+    name: bx-webapp_bxpj
+    external: true
