@@ -4,7 +4,7 @@ x-redash-service: &redash-service
   depends_on:
     - postgres
     - redis
-  env_file: ./opt/redash/env
+  env_file: ./.env
   restart: always
   networks:
     - redash
@@ -57,9 +57,9 @@ services:
 
   postgres:
     image: postgres:13-alpine
-    env_file: ./opt/redash/env
+    env_file: ./.env
     volumes:
-      - postgres-db:/var/lib/postgresql/data
+      - ./postgres-db:/var/lib/postgresql/data
     restart: always
     networks:
       - redash
@@ -75,9 +75,6 @@ services:
   #   restart: always
   #   networks:
   #     - redash
-
-volumes:
-  postgres-db:
 
 networks:
   redash:

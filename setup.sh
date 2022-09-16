@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/.env bash
 # This script setups dockerized Redash on Ubuntu 18.04.
 set -eu
 
-REDASH_BASE_PATH=./opt/redash
+REDASH_BASE_PATH=./
 
 # install_docker(){
 #     # Install Docker
@@ -28,15 +28,15 @@ create_directories() {
         # chown $USER:$USER $REDASH_BASE_PATH
     fi
 
-    if [[ ! -e $REDASH_BASE_PATH/postgres-data ]]; then
-        mkdir $REDASH_BASE_PATH/postgres-data
+    if [[ ! -e $REDASH_BASE_PATH/postgres-db ]]; then
+        mkdir $REDASH_BASE_PATH/postgres-db
     fi
 }
 
 create_config() {
-    if [[ -e $REDASH_BASE_PATH/env ]]; then
-        rm $REDASH_BASE_PATH/env
-        touch $REDASH_BASE_PATH/env
+    if [[ -e $REDASH_BASE_PATH/.env ]]; then
+        rm $REDASH_BASE_PATH/.env
+        touch $REDASH_BASE_PATH/.env
     fi
 
     COOKIE_SECRET=$(pwgen -1s 32)
@@ -44,13 +44,13 @@ create_config() {
     POSTGRES_PASSWORD=$(pwgen -1s 32)
     REDASH_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@postgres/postgres"
 
-    echo "PYTHONUNBUFFERED=0" >> $REDASH_BASE_PATH/env
-    echo "REDASH_LOG_LEVEL=INFO" >> $REDASH_BASE_PATH/env
-    echo "REDASH_REDIS_URL=redis://redis:6379/0" >> $REDASH_BASE_PATH/env
-    echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> $REDASH_BASE_PATH/env
-    echo "REDASH_COOKIE_SECRET=$COOKIE_SECRET" >> $REDASH_BASE_PATH/env
-    echo "REDASH_SECRET_KEY=$SECRET_KEY" >> $REDASH_BASE_PATH/env
-    echo "REDASH_DATABASE_URL=$REDASH_DATABASE_URL" >> $REDASH_BASE_PATH/env
+    echo "PYTHONUNBUFFERED=0" >> $REDASH_BASE_PATH/.env
+    echo "REDASH_LOG_LEVEL=INFO" >> $REDASH_BASE_PATH/.env
+    echo "REDASH_REDIS_URL=redis://redis:6379/0" >> $REDASH_BASE_PATH/.env
+    echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> $REDASH_BASE_PATH/.env
+    echo "REDASH_COOKIE_SECRET=$COOKIE_SECRET" >> $REDASH_BASE_PATH/.env
+    echo "REDASH_SECRET_KEY=$SECRET_KEY" >> $REDASH_BASE_PATH/.env
+    echo "REDASH_DATABASE_URL=$REDASH_DATABASE_URL" >> $REDASH_BASE_PATH/.env
 }
 
 # setup_compose() {
@@ -62,9 +62,9 @@ create_config() {
 #     wget https://raw.githubusercontent.com/getredash/setup/${GIT_BRANCH}/data/docker-compose.yml
 #     sed -ri "s/image: redash\/redash:([A-Za-z0-9.-]*)/image: redash\/redash:$LATEST_VERSION/" docker-compose.yml
 #     echo "export COMPOSE_PROJECT_NAME=redash" >> ~/.profile
-#     echo "export COMPOSE_FILE=/opt/redash/docker-compose.yml" >> ~/.profile
+#     echo "export COMPOSE_FILE=./docker-compose.yml" >> ~/.profile
 #     export COMPOSE_PROJECT_NAME=redash
-#     export COMPOSE_FILE=/opt/redash/docker-compose.yml
+#     export COMPOSE_FILE=./docker-compose.yml
 #     docker-compose run --rm server create_db
 #     docker-compose up -d
 # }
